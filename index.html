@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <title>Kitab Al-Furqan (Book of Proof)</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --sidebar-bg: #ffffff;
+            --text-color: #2b2b2b;
+            --accent-color: #1b4332;
+            --accent-light: #2d6a4f;
+            --border-color: #e0e0e0;
+            --tag-bg: #e8f5e9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            padding: 20px;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .brand h1 {
+            font-size: 1.3rem;
+            margin-bottom: 4px;
+        }
+
+        .brand p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .chapter-list {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .chapter-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chapter-item button {
+            width: 100%;
+            text-align: left;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .chapter-item button:hover,
+        .chapter-item button.active {
+            background-color: #f0f4f1;
+            color: var(--accent-light);
+            font-weight: bold;
+        }
+
+        /* Main Reader Panel */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-nav {
+            background-color: #ffffff;
+            padding: 15px 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-controls input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 90px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .nav-controls button, .btn-page {
+            padding: 8px 16px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .nav-controls button:hover, .btn-page:hover {
+            background-color: var(--accent-light);
+        }
+
+        .reader-container {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .chapter-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .chapter-header h2 {
+            font-size: 2rem;
+            color: var(--accent-color);
+        }
+
+        .basmala {
+            font-family: 'Scheherazade New', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
+            direction: rtl;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            margin-top: 12px;
+            line-height: 1.4;
+        }
+
+        /* Verse / Page Passage Layout */
+        .passage {
+            display: flex;
+            margin-bottom: 25px;
+            line-height: 1.8;
+            font-size: 1.15rem;
+        }
+
+        .passage-ref {
+            font-family: sans-serif;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--accent-light);
+            background-color: var(--tag-bg);
+            padding: 4px 8px;
+            border-radius: 4px;
+            height: fit-content;
+            margin-right: 15px;
+            user-select: none;
+        }
+
+        .passage-text {
+            flex-grow: 1;
+        }
+
+        .passage-ar {
+            font-family: 'Traditional Arabic', 'Amiri', 'Scheherazade New', serif;
+            direction: rtl;
+            text-align: right;
+            font-size: 1.4rem;
+            line-height: 2.2;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .passage-en {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #555;
+            font-style: italic;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        .page-info {
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>Kitab Al-Furqan</h1>
+            <p>Book of Proof</p>
+        </div>
+        <ul class="chapter-list">
+            <li class="chapter-item"><button class="active" onclick="loadChapter(1)">1. Al-Masihiyyah</button></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <header class="top-nav">
+            <div><strong id="current-title">Chapter 1</strong></div>
+            <div class="nav-controls">
+                <label for="jump-input">Go to:</label>
+                <input type="text" id="jump-input" placeholder="1:2">
+                <button onclick="jumpToReference()">Go</button>
+            </div>
+        </header>
+
+        <div class="reader-container">
+            <div id="content-area">
+                <!-- Content will be injected dynamically -->
+            </div>
+
+            <div class="pagination">
+                <button class="btn-page" id="prev-btn" onclick="prevPage()">Previous</button>
+                <span class="page-info" id="page-display">Page 1:1</span>
+                <button class="btn-page" id="next-btn" onclick="nextPage()">Next</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sample Book Data Structure (Chapter -> Pages)
+        const bookData = {
+            1: {
+                title: "AL-MASIHIYYAH",
+                pages: {
+                    1: {
+                        en: "While Genesis 1:24-27 states that God created land animals first and then created male and female humans together on the sixth day, Genesis 2:7-19 reverses this sequence by describing God creating Adam first, then forming the beasts of the field and birds of the air to see what he would name them, and finally creating Eve from Adam's rib.",
+                        ar: "في حين تنص سفر التكوين 1:24-27 على أن الله خلق حيوانات البر أولاً، ثم خلق الإنسان ذكراً وأنثى معاً في اليوم السادس، فإن سفر التكوين 2:7-19 يعكس هذا التسلسل، حيث يصف كيف خلق الله آدم أولاً، ثم شكّل حيوانات البر وطيور السماء ليرى ماذا سيسميها، وأخيراً خلق حواء من ضلع آدم."
+                    },
+                    2: {
+                        en: "While 2 Samuel 24:1 records that the Lord was angry with Israel and Judah, the parallel historical account in 1 Chronicles 21:1 explicity attributes the exactt same census order to Satan standing up against Israel and provoking to count the people.",
+                        ar: "في حين أن 2 صموئيل 24:1 يذكر أن الرب كان غاضبًا على إسرائيل ويهوذا، فإن السرد التاريخي الموازي في 1 أخبار الأيام 21:1 ينسب صراحةً الأمر نفسه بالضبط بإجراء التعداد السكاني إلى الشيطان الذي وقف ضد إسرائيل وحرض على إحصاء الشعب."
+                    },
+                    3: {
+                        en: "While Matthew 27:3-8 records that Judas Iscariot felt remorse returned the thirty silver coins to the temple priests who used them to buy a field, and then went away and hanged himself, Acts 1:18 describes Judas using his own wicked payment to buy the field himself, where he fell head long and his body burst open with all his intestines spilling out.",
+                        ar: "في حين أن إنجيل متى 27:3-8 يذكر أن يهوذا الإسخريوطي شعر بالندم، فأعاد الثلاثين قطعة فضية إلى كهنة الهيكل الذين استخدموها لشراء حقل، ثم ذهب وشنق نفسه، فإن سفر أعمال الرسل 1:18 يصف أن يهوذا استخدم أجره الشرير بنفسه لشراء الحقل، حيث سقط على رأسه فانشق جسده وتناثرت أحشائه كلها."
+                    },
+                    4: {
+                        en: "While critics often attempt to smear the global Muslim Ummah by pointing to the extremist groups or historical age of marriage norms, the Quran explicity condemns all forms of terrorism and the taking of innocent lives (Surah Al-Ma'idah 5:32), while historical context that young adult unions were standard social and legal practices across all ancient and medieval civilations, including biblical societies, making it entirely dishonest to apply modern legal standards selectively against Muslims while ignoring the overwhelmingly peaceful teachings and vast constributions of over 2 billion believers worldwide.",
+                        ar: "في حين يحاول النقاد في كثير من الأحيان تشويه صورة الأمة الإسلامية العالمية من خلال الإشارة إلى الجماعات المتطرفة أو الأعراف التاريخية المتعلقة بسن الزواج، إلا أن القرآن الكريم يدين صراحةً جميع أشكال الإرهاب وسفك أرواح الأبرياء (سورة المائدة 5:32)، في حين أن السياق التاريخي يشير إلى أن زواج الشباب كان ممارسة اجتماعية وقانونية معتادة في جميع الحضارات القديمة والوسطى، بما في ذلك المجتمعات التوراتية، مما يجعل من غير النزيه على الإطلاق تطبيق المعايير القانونية الحديثة بشكل انتقائي ضد المسلمين مع تجاهل التعاليم السلمية الساحقة والمساهمات الهائلة لأكثر من ملياري مؤمن في جميع أنحاء العالم."
+                    },
+                    5: {
+                        en: "While critics attempt to single out Muslims for cousin marriages, consanguity was historically widespread throughout European and Christian history, particularly among European royalty, aristocracy, and rural populations. Furthermore, cousin marriage is an ancient cultural tradition practiced by specific regional ethnic groups such as Kurds, rather than a universal or compulsory religious mandate.",
+                        ar: "في حين يحاول النقاد توجيه اللوم إلى المسلمين وحدهم فيما يتعلق بزواج الأقارب، فإن زواج الأقارب كان منتشرًا على نطاق واسع عبر التاريخ الأوروبي والمسيحي، لا سيما بين العائلات الملكية والأرستقراطية والسكان الريفيين في أوروبا. علاوة على ذلك، فإن زواج الأقارب هو تقليد ثقافي قديم تمارسه مجموعات عرقية إقليمية محددة مثل الأكراد، وليس فريضة دينية عالمية أو إلزامية."
+                    },
+                    6: {
+                        en: 'While traditional Christian dogma claims that Jesus is God or literal "Son of God", Jesus himself explicity rejected divine equality by affirming that God alone is the absolute supreme deity (Mark 10:18), praying directly to God as his Creator (Luke 22:42) admitting that his knowledge was limited compared to the Father (Mark 13:32), and declaring "the Father is greater than I" (John 14:28), textual evidence that renders divine co-equality logically and scripturally impossible within the Gospel records themselves.',
+                        ar: "في حين تدعي العقيدة المسيحية التقليدية أن يسوع هو الله أو «ابن الله» بالمعنى الحرفي، فإن يسوع نفسه رفض صراحةً المساواة الإلهية، حيث أكد أن الله وحده هو الإله المطلق الأعلى (مرقس 10:18)، وصلى مباشرةً إلى الله بصفته خالقه (لوقا 22:42)، واعترف بأن معرفته محدودة مقارنةً بالآب (مرقس 13:32)، وأعلن أن «الآب أعظم مني» (يوحنا 14:28)، وهي أدلة نصية تجعل المساواة الإلهية مستحيلة منطقياً وكتابياً ضمن سجلات الأناجيل نفسها."
+                    },
+                    7: {
+                        en: `While Christian theology elevated Jesus to divinity, the text of the Gospels directly affirms his identity as a prophet when Jesus himself declares that "a prophet is not without honor except in his own town" (Luke 4:24) and the crowds recognize him as "Jesus, the prophet from Nazareth" (Matthew 21:11), which aligns with the Quranic reality where Jesus (peace be upon him), explicitly identifies himself as a servant and prophet of God (Surah Maryam 19:30) and is honored as true Messiah (Al-Masih) sent to perform miracles, preach pure monotheism, and guide the Children of Israel (Surah Ali'Imran 3:45 - 49)`,
+                        ar: "في حين أن اللاهوت المسيحي رفع يسوع إلى مرتبة الألوهية، فإن نص الأناجيل يؤكد بشكل مباشر هويته كنبي عندما يصرح يسوع نفسه بأن «ليس نبيٌّ بلا كرامة إلا في وطنه» (لوقا 4:24)، وتعترف الجماهير به على أنه «يسوع، النبي من الناصرة» (متى 21:11)، وهو ما يتوافق مع الحقيقة القرآنية التي يصف فيها عيسى (عليه السلام) نفسه صراحةً بأنه عبد الله ونبيه (سورة مريم 19:30) ويُكرم باعتباره المسيح الحقيقي (المسيح) المرسل ليصنع المعجزات، ويدعو إلى التوحيد الخالص، ويهدي بني إسرائيل (سورة آل عمران 3:45 - 49)"
+                    }
+                }
+            }
+        };
+
+        let currentChapter = 1;
+        let currentPage = 1;
+
+        function renderPage() {
+            const chapter = bookData[currentChapter];
+            const passage = chapter.pages[currentPage];
+
+            document.getElementById('current-title').innerText = chapter.title;
+            
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = `
+                <div class="chapter-header">
+                    <h2>${chapter.title}</h2>
+                    <p class="basmala">﷽</p>
+                </div>
+                <div class="passage">
+                    <span class="passage-ref">${currentChapter}:${currentPage}</span>
+                    <div class="passage-text">
+                        <p class="passage-ar">${passage.ar}</p>
+                        <p class="passage-en">${passage.en}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('page-display').innerText = `${currentChapter}:${currentPage}`;
+
+            // Update sidebar active buttons
+            const buttons = document.querySelectorAll('.chapter-list button');
+            buttons.forEach((btn, idx) => {
+                btn.classList.toggle('active', idx + 1 === currentChapter);
+            });
+
+            // Update pagination buttons state
+            const totalPages = Object.keys(chapter.pages).length;
+            document.getElementById('prev-btn').disabled = (currentPage === 1 && currentChapter === 1);
+            document.getElementById('next-btn').disabled = (currentPage === totalPages && !bookData[currentChapter + 1]);
+        }
+
+        function loadChapter(chapNum) {
+            if (bookData[chapNum]) {
+                currentChapter = chapNum;
+                currentPage = 1;
+                renderPage();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Object.keys(bookData[currentChapter].pages).length;
+            if (currentPage < totalPages) {
+                currentPage++;
+            } else if (bookData[currentChapter + 1]) {
+                currentChapter++;
+                currentPage = 1;
+            }
+            renderPage();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+            } else if (currentChapter > 1) {
+                currentChapter--;
+                currentPage = Object.keys(bookData[currentChapter].pages).length;
+            }
+            renderPage();
+        }
+
+        function jumpToReference() {
+            const val = document.getElementById('jump-input').value.trim();
+            const parts = val.split(':');
+            
+            if (parts.length === 2) {
+                const chap = parseInt(parts[0]);
+                const pg = parseInt(parts[1]);
+
+                if (bookData[chap] && bookData[chap].pages[pg] && bookData[chap].pages[pg].en) {
+                    currentChapter = chap;
+                    currentPage = pg;
+                    renderPage();
+                    document.getElementById('jump-input').value = '';
+                    return;
+                }
+            }
+            alert("Reference not found! Use format Chapter:Page (e.g. 1:2 or 2:1)");
+        }
+
+        // Initialize display on load
+        renderPage();
+    </script>
+</body>
+</html>
