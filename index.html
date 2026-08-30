@@ -230,6 +230,25 @@
             color: #666;
         }
 
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-light);
+            background-color: var(--tag-bg);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .share-btn:hover {
+            background-color: var(--accent-light);
+            color: #ffffff;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -333,7 +352,7 @@
     <aside class="sidebar">
         <div class="brand">
             <h1>Kitab Al-Furqan</h1>
-            <p>Book of Proof</p>
+            <p id="tagline-text">Book of Proof</p>
         </div>
         <ul class="chapter-list">
             <li class="chapter-item"><button class="active" onclick="loadChapter(1)">1. Al-Masihiyyah</button></li>
@@ -343,14 +362,23 @@
     <!-- Main Content Area -->
     <main class="main-content">
         <header class="top-nav">
-            <div style="display:flex; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
                 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
                 <strong id="current-title">Chapter 1</strong>
+                <button class="share-btn" onclick="sharePage()" aria-label="Share" title="Share">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"></circle>
+                        <circle cx="6" cy="12" r="3"></circle>
+                        <circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                </button>
             </div>
             <div class="nav-controls">
-                <label for="jump-input">Go to:</label>
+                <label for="jump-input" id="goto-label">Go to:</label>
                 <input type="text" id="jump-input" placeholder="1:2">
-                <button onclick="jumpToReference()">Go</button>
+                <button id="go-btn" onclick="jumpToReference()">Go</button>
             </div>
         </header>
 
@@ -463,12 +491,66 @@
             document.querySelector('.sidebar-overlay').classList.toggle('active');
         }
 
-        const supportedLangs = ['en', 'tr', 'de'];
+        function updateHashSilently(chap, page) {
+            const newHash = '#' + chap + ':' + page;
+            if (location.hash !== newHash) {
+                history.replaceState(null, '', newHash);
+            }
+        }
+
+        function sharePage() {
+            const url = location.origin + location.pathname + '#' + currentChapter + ':' + currentPage;
+            const t = uiStrings[uiLang] || uiStrings.en;
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+            if (isMobile && navigator.share) {
+                navigator.share({ url: url }).catch(() => {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => alert(t.copied));
+            } else {
+                prompt("Copy link:", url);
+            }
+        }
+
+        function loadFromHash() {
+            const hash = location.hash.replace('#', '');
+            const parts = hash.split(':');
+            if (parts.length === 2) {
+                const chap = parseInt(parts[0]);
+                const pg = parseInt(parts[1]);
+                if (bookData[chap] && bookData[chap].pages[pg]) {
+                    currentChapter = chap;
+                    currentPage = pg;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const supportedContentLangs = ['en', 'tr', 'de'];
+        const supportedUILangs = ['en', 'tr', 'de', 'ar'];
         const rawLang = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
-        const userLang = supportedLangs.includes(rawLang) ? rawLang : 'en';
+        const userLang = supportedContentLangs.includes(rawLang) ? rawLang : 'en';
+        const uiLang = supportedUILangs.includes(rawLang) ? rawLang : 'en';
 
         function getTranslationText(passage) {
             return passage[userLang] || passage.en;
+        }
+
+        const uiStrings = {
+            en: { tagline: "Book of Proof", goTo: "Go to:", go: "Go", previous: "Previous", next: "Next", share: "Share", copied: "Link copied!", notFound: "Reference not found! Use format Chapter:Page (e.g. 1:2 or 2:1)" },
+            tr: { tagline: "Delil Kitabı", goTo: "Git:", go: "Git", previous: "Önceki", next: "Sonraki", share: "Paylaş", copied: "Bağlantı kopyalandı!", notFound: "Referans bulunamadı! Bölüm:Sayfa biçimini kullanın (örn. 1:2 veya 2:1)" },
+            de: { tagline: "Buch des Beweises", goTo: "Gehe zu:", go: "Los", previous: "Zurück", next: "Weiter", share: "Teilen", copied: "Link kopiert!", notFound: "Referenz nicht gefunden! Verwenden Sie das Format Kapitel:Seite (z. B. 1:2 oder 2:1)" },
+            ar: { tagline: "كتاب البرهان", goTo: "الانتقال إلى:", go: "اذهب", previous: "السابق", next: "التالي", share: "مشاركة", copied: "تم نسخ الرابط!", notFound: "المرجع غير موجود! استخدم الصيغة الفصل:الصفحة (مثال 1:2 أو 2:1)" }
+        };
+
+        function applyUILanguage() {
+            const t = uiStrings[uiLang] || uiStrings.en;
+            document.getElementById('tagline-text').innerText = t.tagline;
+            document.getElementById('goto-label').innerText = t.goTo;
+            document.getElementById('go-btn').innerText = t.go;
+            document.getElementById('prev-btn').innerText = t.previous;
+            document.getElementById('next-btn').innerText = t.next;
         }
 
         function renderPage() {
@@ -493,6 +575,7 @@
             `;
 
             document.getElementById('page-display').innerText = `${currentChapter}:${currentPage}`;
+            updateHashSilently(currentChapter, currentPage);
 
             // Update sidebar active buttons
             const buttons = document.querySelectorAll('.chapter-list button');
@@ -551,11 +634,18 @@
                     return;
                 }
             }
-            alert("Reference not found! Use format Chapter:Page (e.g. 1:2 or 2:1)");
+            alert((uiStrings[uiLang] || uiStrings.en).notFound);
         }
 
         // Initialize display on load
+        loadFromHash();
+        applyUILanguage();
         renderPage();
+        window.addEventListener('hashchange', function() {
+            if (loadFromHash()) {
+                renderPage();
+            }
+        });
     </script>
 </body>
 </html>
