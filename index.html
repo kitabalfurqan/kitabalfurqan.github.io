@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
-    <title>Kitab Al-Furqan (Book of Proof)</title>
+    <title>Kitab Al-Furqan</title>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -29,6 +29,7 @@
             color: var(--text-color);
             display: flex;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
         }
 
@@ -284,7 +285,19 @@
             }
 
             .reader-container {
-                padding: 20px 15px;
+                padding: 20px 15px 90px;
+            }
+
+            .pagination {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background-color: var(--sidebar-bg);
+                padding: 12px 15px;
+                margin-top: 0;
+                border-top: 1px solid var(--border-color);
+                z-index: 500;
             }
 
             .chapter-header h2 {
