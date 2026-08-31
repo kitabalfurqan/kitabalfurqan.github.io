@@ -257,6 +257,95 @@
             display: none;
         }
 
+        #reader-view {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .home-page {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            overflow-y: auto;
+        }
+
+        .home-card {
+            max-width: 640px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .home-image {
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 16 / 9;
+            object-fit: contain;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .home-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0 25px;
+            color: var(--accent-light);
+            font-size: 0.9rem;
+        }
+
+        .home-divider::before,
+        .home-divider::after {
+            content: "";
+            height: 1px;
+            width: 60px;
+            background-color: var(--border-color);
+        }
+
+        .home-title {
+            font-size: 1.9rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .home-tagline {
+            font-style: italic;
+            color: var(--accent-light);
+            font-size: 1.05rem;
+            margin-bottom: 25px;
+        }
+
+        .home-text {
+            max-width: 520px;
+            margin: 0 auto 35px;
+            font-size: 1.02rem;
+            line-height: 1.85;
+            color: #555;
+        }
+
+        .home-start-btn {
+            padding: 12px 32px;
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: sans-serif;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .home-start-btn:hover {
+            background-color: var(--accent-light);
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -398,6 +487,97 @@
                 font-size: 1.2rem;
             }
         }
+
+        /* Home Page Search */
+        .home-search {
+            max-width: 480px;
+            margin: 0 auto 30px;
+            position: relative;
+            text-align: left;
+        }
+
+        .home-search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .home-search-input:focus {
+            outline: none;
+            border-color: var(--accent-light);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 10px;
+            max-height: 320px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: #ffffff;
+            text-align: left;
+            z-index: 100;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background-color: #f0f4f1;
+        }
+
+        .search-result-ref {
+            font-family: sans-serif;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--accent-light);
+            background-color: var(--tag-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .search-result-chapter {
+            font-family: sans-serif;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .search-result-snippet {
+            margin-top: 6px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .search-result-snippet mark {
+            background-color: #ffe9a8;
+            color: inherit;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .search-no-results {
+            padding: 16px;
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -412,12 +592,33 @@
             <p id="tagline-text">Book of Proof</p>
         </div>
         <ul class="chapter-list">
-            <li class="chapter-item"><button class="active" onclick="loadChapter(1)">1. Al-Masihiyyah</button></li>
+            <li class="chapter-item"><button onclick="loadChapter(1)">1. Al-Masihiyyah</button></li>
         </ul>
     </aside>
 
     <!-- Main Content Area -->
     <main class="main-content">
+
+        <!-- Home Page -->
+        <div id="home-page" class="home-page hidden">
+            <div class="home-card">
+                <div class="home-search">
+                    <input type="text" id="search-input" class="home-search-input" placeholder="Search a word or chapter..." oninput="performSearch()">
+                    <div id="search-results" class="search-results hidden"></div>
+                </div>
+
+                <img src="https://kitabalfurqan.github.io/furqan.png" alt="Kitab Al-Furqan" class="home-image">
+                <div class="home-divider">✦</div>
+                <h1 class="home-title">Kitab Al-Furqan</h1>
+                <p class="home-tagline" id="home-tagline-text">Book of Proof</p>
+                <p class="home-text" id="home-text"></p>
+
+                <button class="home-start-btn" id="home-start-btn" onclick="startReading()"></button>
+            </div>
+        </div>
+
+        <!-- Reader View -->
+        <div id="reader-view" class="hidden">
         <header class="top-nav">
             <div style="display:flex; align-items:center; gap:10px;">
                 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -456,6 +657,7 @@
                 <span class="page-info" id="page-display">Page 1:1</span>
                 <button class="btn-page" id="next-btn" onclick="nextPage()">Next</button>
             </div>
+        </div>
         </div>
     </main>
 
@@ -501,7 +703,7 @@
                         en: 'While traditional Christian dogma claims that Jesus is God or literal "Son of God", Jesus himself explicity rejected divine equality by affirming that God alone is the absolute supreme deity (Mark 10:18), praying directly to God as his Creator (Luke 22:42) admitting that his knowledge was limited compared to the Father (Mark 13:32), and declaring "the Father is greater than I" (John 14:28), textual evidence that renders divine co-equality logically and scripturally impossible within the Gospel records themselves.',
                         ar: "في حين تدعي العقيدة المسيحية التقليدية أن يسوع هو الله أو «ابن الله» بالمعنى الحرفي، فإن يسوع نفسه رفض صراحةً المساواة الإلهية، حيث أكد أن الله وحده هو الإله المطلق الأعلى (مرقس 10:18)، وصلى مباشرةً إلى الله بصفته خالقه (لوقا 22:42)، واعترف بأن معرفته محدودة مقارنةً بالآب (مرقس 13:32)، وأعلن أن «الآب أعظم مني» (يوحنا 14:28)، وهي أدلة نصية تجعل المساواة الإلهية مستحيلة منطقياً وكتابياً ضمن سجلات الأناجيل نفسها.",
                         tr: "Geleneksel Hristiyan dogması İsa'nın Tanrı ya da gerçek anlamda 'Tanrı'nın Oğlu' olduğunu iddia etse de, İsa'nın kendisi, yalnızca Tanrı'nın mutlak yüce ilah olduğunu doğrulayarak (Markos 10:18), Yaratıcısı olarak doğrudan Tanrı'ya dua ederek (Luka 22:42), bilgisinin Baba'ya kıyasla sınırlı olduğunu kabul ederek (Markos 13:32) ve 'Baba benden üstündür' diyerek (Yuhanna 14:28) tanrısal eşitliği açıkça reddetmiştir; bu metinsel kanıtlar, İncil kayıtlarının kendi içinde bile tanrısal eş-eşitliği mantıksal ve kutsal metin açısından imkansız kılmaktadır.",
-                        de: "Während die traditionelle christliche Lehre behauptet, Jesus sei Gott oder wörtlich der 'Sohn Gottes', wies Jesus selbst die göttliche Gleichheit ausdrücklich zurück, indem er bekräftigte, dass Gott allein die absolute höchste Gottheit ist (Markus 10,18), direkt zu Gott als seinem Schöpfer betete (Lukas 22,42), zugab, dass sein Wissen im Vergleich zum Vater begrenzt war (Markus 13,32), und erklärte: 'Der Vater ist größer als ich' (Johannes 14,28) – textliche Beweise, die eine göttliche Gleichrangigkeit innerhalb der Evangelienberichte selbst logisch und schriftlich unmöglich machen."
+                        de: "Während die traditionelle christliche Lehre behauptet, Jesus sei Gott oder wörtlich der 'Sohn Gottes', wies Jesus selbst die göttliche Gleichheit ausdrücklich zurück, indem er bekräftigte, dass Gott allein die absolute höchste Gottheit ist (Markus 10,18), direkt zu Gott als seinem Schöpfer betete (Lukas 22,42), zugab, dass sein Wissen im Vergleich zum Vater begrenzt war (Markus 13,32), und erklärte: 'Der Vater ist größer als ich' (Johannes 14,28), textliche Beweise, die eine göttliche Gleichrangigkeit innerhalb der Evangelienberichte selbst logisch und schriftlich unmöglich machen."
                     },
                     7: {
                         en: `While Christian theology elevated Jesus to divinity, the text of the Gospels directly affirms his identity as a prophet when Jesus himself declares that "a prophet is not without honor except in his own town" (Luke 4:24) and the crowds recognize him as "Jesus, the prophet from Nazareth" (Matthew 21:11), which aligns with the Quranic reality where Jesus (peace be upon him), explicitly identifies himself as a servant and prophet of God (Surah Maryam 19:30) and is honored as true Messiah (Al-Masih) sent to perform miracles, preach pure monotheism, and guide the Children of Israel (Surah Ali'Imran 3:45 - 49)`,
@@ -640,10 +842,10 @@
         }
 
         const uiStrings = {
-            en: { tagline: "Book of Proof", goTo: "Go to:", go: "Go", previous: "Previous", next: "Next", share: "Share", copied: "Link copied!", notFound: "Reference not found! Use format Chapter:Page (e.g. 1:2 or 2:1)" },
-            tr: { tagline: "Delil Kitabı", goTo: "Git:", go: "Git", previous: "Önceki", next: "Sonraki", share: "Paylaş", copied: "Bağlantı kopyalandı!", notFound: "Referans bulunamadı! Bölüm:Sayfa biçimini kullanın (örn. 1:2 veya 2:1)" },
-            de: { tagline: "Buch des Beweises", goTo: "Gehe zu:", go: "Los", previous: "Zurück", next: "Weiter", share: "Teilen", copied: "Link kopiert!", notFound: "Referenz nicht gefunden! Verwenden Sie das Format Kapitel:Seite (z. B. 1:2 oder 2:1)" },
-            ar: { tagline: "كتاب البرهان", goTo: "الانتقال إلى:", go: "اذهب", previous: "السابق", next: "التالي", share: "مشاركة", copied: "تم نسخ الرابط!", notFound: "المرجع غير موجود! استخدم الصيغة الفصل:الصفحة (مثال 1:2 أو 2:1)" }
+            en: { tagline: "Book of Proof", goTo: "Go to:", go: "Go", previous: "Previous", next: "Next", share: "Share", copied: "Link copied!", notFound: "Reference not found! Use format Chapter:Page (e.g. 1:2 or 2:1)", homeText: "An Islamic book exploring the evidences and arguments for the faith. Browse chapters from the menu, or press \"Start Reading\" to begin from the first page.", homeBtn: "Start Reading", searchPlaceholder: "Search a word or chapter...", noResults: "No results found.", chapterMatch: "Chapter match:" },
+            tr: { tagline: "Delil Kitabı", goTo: "Git:", go: "Git", previous: "Önceki", next: "Sonraki", share: "Paylaş", copied: "Bağlantı kopyalandı!", notFound: "Referans bulunamadı! Bölüm:Sayfa biçimini kullanın (örn. 1:2 veya 2:1)", homeText: "İmana dair delilleri ve argümanları inceleyen İslami bir kitap. Menüden bölümlere göz atabilir veya ilk sayfadan başlamak için \"Okumaya Başla\" düğmesine basabilirsiniz.", homeBtn: "Okumaya Başla", searchPlaceholder: "Bir kelime veya bölüm ara...", noResults: "Sonuç bulunamadı.", chapterMatch: "Bölüm eşleşmesi:" },
+            de: { tagline: "Buch des Beweises", goTo: "Gehe zu:", go: "Los", previous: "Zurück", next: "Weiter", share: "Teilen", copied: "Link kopiert!", notFound: "Referenz nicht gefunden! Verwenden Sie das Format Kapitel:Seite (z. B. 1:2 oder 2:1)", homeText: "Ein islamisches Buch, das die Beweise und Argumente für den Glauben untersucht. Durchsuchen Sie die Kapitel über das Menü oder klicken Sie auf \"Lesen beginnen\", um auf der ersten Seite zu starten.", homeBtn: "Lesen beginnen", searchPlaceholder: "Ein Wort oder Kapitel suchen...", noResults: "Keine Ergebnisse gefunden.", chapterMatch: "Kapitelübereinstimmung:" },
+            ar: { tagline: "كتاب البرهان", goTo: "الانتقال إلى:", go: "اذهب", previous: "السابق", next: "التالي", share: "مشاركة", copied: "تم نسخ الرابط!", notFound: "المرجع غير موجود! استخدم الصيغة الفصل:الصفحة (مثال 1:2 أو 2:1)", homeText: "كتاب إسلامي يستعرض الأدلة والحجج على صحة العقيدة. تصفح الفصول من القائمة، أو اضغط على \"ابدأ القراءة\" للبدء من الصفحة الأولى.", homeBtn: "ابدأ القراءة", searchPlaceholder: "ابحث عن كلمة أو فصل...", noResults: "لم يتم العثور على نتائج.", chapterMatch: "تطابق الفصل:" }
         };
 
         function applyUILanguage() {
@@ -653,6 +855,10 @@
             document.getElementById('go-btn').innerText = t.go;
             document.getElementById('prev-btn').innerText = t.previous;
             document.getElementById('next-btn').innerText = t.next;
+            document.getElementById('home-tagline-text').innerText = t.tagline;
+            document.getElementById('home-text').innerText = t.homeText;
+            document.getElementById('home-start-btn').innerText = t.homeBtn;
+            document.getElementById('search-input').placeholder = t.searchPlaceholder;
         }
 
         function renderPage() {
@@ -695,6 +901,7 @@
             if (bookData[chapNum]) {
                 currentChapter = chapNum;
                 currentPage = 1;
+                showReaderView();
                 renderPage();
             }
         }
@@ -739,13 +946,130 @@
             alert((uiStrings[uiLang] || uiStrings.en).notFound);
         }
 
+        function escapeRegExp(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function makeSnippet(text, query) {
+            const lowerText = text.toLowerCase();
+            const idx = lowerText.indexOf(query);
+            const start = Math.max(0, idx - 40);
+            const end = Math.min(text.length, idx + query.length + 40);
+            let snippet = text.substring(start, end);
+            if (start > 0) snippet = '...' + snippet;
+            if (end < text.length) snippet = snippet + '...';
+            const regex = new RegExp('(' + escapeRegExp(query) + ')', 'gi');
+            return snippet.replace(regex, '<mark>$1</mark>');
+        }
+
+        function performSearch() {
+            const query = document.getElementById('search-input').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('search-results');
+
+            if (!query) {
+                resultsContainer.classList.add('hidden');
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            const matches = [];
+            const langs = [userLang, 'en', 'ar', 'tr', 'de'].filter((lang, idx, arr) => arr.indexOf(lang) === idx);
+
+            Object.keys(bookData).forEach(function(chapNum) {
+                const chapter = bookData[chapNum];
+
+                if (chapter.title.toLowerCase().includes(query)) {
+                    const t = uiStrings[uiLang] || uiStrings.en;
+                    matches.push({
+                        chapter: chapNum,
+                        page: 1,
+                        snippet: '<strong>' + t.chapterMatch + '</strong> ' + chapter.title
+                    });
+                }
+
+                Object.keys(chapter.pages).forEach(function(pgNum) {
+                    const passage = chapter.pages[pgNum];
+                    for (let i = 0; i < langs.length; i++) {
+                        const text = passage[langs[i]];
+                        if (text && text.toLowerCase().includes(query)) {
+                            matches.push({
+                                chapter: chapNum,
+                                page: pgNum,
+                                snippet: makeSnippet(text, query)
+                            });
+                            break;
+                        }
+                    }
+                });
+            });
+
+            if (matches.length === 0) {
+                const t = uiStrings[uiLang] || uiStrings.en;
+                resultsContainer.innerHTML = '<p class="search-no-results">' + t.noResults + '</p>';
+                resultsContainer.classList.remove('hidden');
+                return;
+            }
+
+            let html = '';
+            matches.forEach(function(m) {
+                const chapterTitle = bookData[m.chapter].title;
+                html += `
+                    <div class="search-result-item" onclick="goToSearchResult(${m.chapter}, ${m.page})">
+                        <span class="search-result-ref">${m.chapter}:${m.page}</span>
+                        <span class="search-result-chapter">${chapterTitle}</span>
+                        <p class="search-result-snippet">${m.snippet}</p>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+            resultsContainer.classList.remove('hidden');
+        }
+
+        function goToSearchResult(chap, page) {
+            currentChapter = chap;
+            currentPage = page;
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-results').classList.add('hidden');
+            document.getElementById('search-results').innerHTML = '';
+            showReaderView();
+            renderPage();
+        }
+
+        function showHomePage() {
+            document.getElementById('home-page').classList.remove('hidden');
+            document.getElementById('reader-view').classList.add('hidden');
+            document.querySelectorAll('.chapter-list button').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+        }
+
+        function showReaderView() {
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('reader-view').classList.remove('hidden');
+        }
+
+        function startReading() {
+            currentChapter = 1;
+            currentPage = 1;
+            showReaderView();
+            renderPage();
+        }
+
         // Initialize display on load
-        loadFromHash();
         applyUILanguage();
-        renderPage();
+        if (loadFromHash()) {
+            showReaderView();
+            renderPage();
+        } else {
+            showHomePage();
+        }
         window.addEventListener('hashchange', function() {
             if (loadFromHash()) {
+                showReaderView();
                 renderPage();
+            } else if (!location.hash) {
+                showHomePage();
             }
         });
     </script>
