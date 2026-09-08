@@ -1237,10 +1237,39 @@
             { title: "The Bible", url: "https://bible.com/", category: "Other Scriptures" },
             { title: "The Talmud", url: "https://www.sefaria.org/texts/Talmud", category: "Other Scriptures" },
             { title: "The Torah", url: "https://www.chabad.org/library/bible_cdo/aid/63255/jewish/The-Bible-with-Rashi.htm", category: "Other Scriptures" },
-            { title: "Hindu Scripts", url: "https://www.veducation.world/library", category: "Other Scriptures" },
+            { title: "Hindu Manuscripts", url: "https://www.veducation.world/library", category: "Other Scriptures" },
+            { title: "Translation", url: "https://www.deepl.com/translator", category: "Translation" },
 
             // { title: "Another Source", url: "https://another-site.org/page", category: "Other Scriptures" },
         ];
+
+        const sourceCategoryTranslations = {
+            en: {
+                "Islamic Sources": "Islamic Sources",
+                "Other Scriptures": "Other Scriptures",
+                "Translation": "Translation"
+            },
+            tr: {
+                "Islamic Sources": "İslami Kaynaklar",
+                "Other Scriptures": "Diğer Kutsal Metinler",
+                "Translation": "Çeviri"
+            },
+            de: {
+                "Islamic Sources": "Islamische Quellen",
+                "Other Scriptures": "Andere Heilige Schriften",
+                "Translation": "Übersetzung"
+            },
+            ar: {
+                "Islamic Sources": "المصادر الإسلامية",
+                "Other Scriptures": "الكتب المقدسة الأخرى",
+                "Translation": "الترجمة"
+            }
+        };
+
+        function getSourceCategory(category) {
+            const translations = sourceCategoryTranslations[uiLang] || sourceCategoryTranslations.en;
+            return translations[category] || category;
+        }
 
         let currentChapter = 1;
         let currentPage = 1;
@@ -1267,11 +1296,14 @@
             const grouped = {};
             sourcesData.forEach(function(src) {
                 const cat = src.category || t.sourcesTitle;
-                if (!grouped[cat]) {
-                    grouped[cat] = [];
-                    categories.push(cat);
+                const translatedCat = getSourceCategory(cat);
+
+                if (!grouped[translatedCat]) {
+                    grouped[translatedCat] = [];
+                    categories.push(translatedCat);
                 }
-                grouped[cat].push(src);
+
+                grouped[translatedCat].push(src);
             });
 
             const arrowIcon = `
