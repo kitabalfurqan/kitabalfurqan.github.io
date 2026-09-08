@@ -347,6 +347,33 @@
             background-color: var(--accent-light);
         }
 
+        .home-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .sources-icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--tag-bg);
+            color: var(--accent-light);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .sources-icon-btn:hover {
+            background-color: var(--accent-light);
+            color: #ffffff;
+        }
+
         @media print {
             @page {
                 margin: 20mm 15mm 18mm 15mm;
@@ -639,6 +666,123 @@
             color: #888;
             font-size: 0.9rem;
         }
+
+        /* Sources Page */
+        /* Sources Page */
+        .sources-count {
+            font-family: sans-serif;
+            font-size: 0.85rem;
+            color: #888;
+            margin: -15px 0 25px;
+        }
+
+.sources-list {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+#sources-back-btn {
+    margin-top: 30px;
+}
+
+.sources-category {
+    margin-bottom: 28px;
+}
+
+        .sources-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .sources-category-label {
+            font-family: sans-serif;
+            font-size: 0.78rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-light);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .sources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #ffffff;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .source-item:hover {
+            border-color: var(--accent-light);
+        }
+
+        .source-favicon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            border-radius: 6px;
+            object-fit: contain;
+            background-color: var(--tag-bg);
+            padding: 4px;
+        }
+
+        .source-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .source-title {
+            font-family: sans-serif;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: var(--accent-color);
+            margin-bottom: 3px;
+        }
+
+        .source-url {
+            font-family: sans-serif;
+            font-size: 0.8rem;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .source-arrow {
+            flex-shrink: 0;
+            color: #bbb;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+
+        .source-item:hover .source-arrow {
+            color: var(--accent-light);
+            transform: translate(2px, -2px);
+        }
+
+        .sources-empty {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
@@ -679,7 +823,28 @@
                 <p class="home-tagline" id="home-tagline-text">Book of Proof</p>
                 <p class="home-text" id="home-text"></p>
 
-                <button class="home-start-btn" id="home-start-btn" onclick="startReading()"></button>
+                <div class="home-actions">
+                    <button class="home-start-btn" id="home-start-btn" onclick="startReading()"></button>
+                    <button class="sources-icon-btn" onclick="location.hash='source'" aria-label="Sources" title="Sources">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sources Page (visit #source to view) -->
+        <div id="sources-page" class="home-page hidden">
+            <div class="home-card">
+                <div class="home-divider">✦</div>
+                <h1 class="home-title" id="sources-title-text">Sources</h1>
+                <p class="home-tagline" id="sources-tagline-text">Where the information in this book comes from</p>
+                <p class="sources-count" id="sources-count-text"></p>
+                <div id="sources-list" class="sources-list"></div>
+                <button class="home-start-btn" id="sources-back-btn" onclick="location.hash=''">Back to Home</button>
             </div>
         </div>
 
@@ -1062,12 +1227,100 @@
             },
         }
 
+        // Add your sources here — one object per source.
+        // "title" is the display name, "url" is the full link (also used to fetch the site's icon).
+        const sourcesData = [
+            { title: "All the Miracles of Quran", url: "https://www.miracles-of-quran.com/", category: "Islamic Sources" },
+            { title: "The Quran", url: "https://quran.com", category: "Islamic Sources" },
+            { title: "Explaining Quran verses & Hadiths", url: "https://thequran.love/", category: "Islamic Sources" },
+            { title: "Hadiths", url: "https://sunnah.com/", category: "Islamic Sources" },
+            { title: "The Bible", url: "https://bible.com/", category: "Other Scriptures" },
+            { title: "The Talmud", url: "https://www.sefaria.org/texts/Talmud", category: "Other Scriptures" },
+            { title: "The Torah", url: "https://www.chabad.org/library/bible_cdo/aid/63255/jewish/The-Bible-with-Rashi.htm", category: "Other Scriptures" },
+            { title: "Hindu Scripts", url: "https://www.veducation.world/library", category: "Other Scriptures" },
+
+            // { title: "Another Source", url: "https://another-site.org/page", category: "Other Scriptures" },
+        ];
+
         let currentChapter = 1;
         let currentPage = 1;
 
         function toggleSidebar() {
             document.querySelector('.sidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function renderSources() {
+            const list = document.getElementById('sources-list');
+            const t = Object.assign({}, uiStrings.en, uiStrings[uiLang] || {});
+            const countEl = document.getElementById('sources-count-text');
+
+            if (!sourcesData.length) {
+                countEl.innerText = '';
+                list.innerHTML = '<p class="sources-empty">' + t.sourcesEmpty + '</p>';
+                return;
+            }
+
+            countEl.innerText = t.sourcesCount.replace('{count}', sourcesData.length);
+
+            const categories = [];
+            const grouped = {};
+            sourcesData.forEach(function(src) {
+                const cat = src.category || t.sourcesTitle;
+                if (!grouped[cat]) {
+                    grouped[cat] = [];
+                    categories.push(cat);
+                }
+                grouped[cat].push(src);
+            });
+
+            const arrowIcon = `
+                <svg class="source-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="7" y1="17" x2="17" y2="7"></line>
+                    <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+            `;
+
+            list.innerHTML = categories.map(function(cat) {
+                const items = grouped[cat].map(function(src) {
+                    let hostname = '';
+                    try {
+                        hostname = new URL(src.url).hostname;
+                    } catch (e) {
+                        hostname = '';
+                    }
+                    const iconUrl = hostname
+                        ? 'https://www.google.com/s2/favicons?sz=64&domain=' + hostname
+                        : '';
+                    return `
+                        <a class="source-item" href="${src.url}" target="_blank" rel="noopener noreferrer">
+                            <img class="source-favicon" src="${iconUrl}" alt="" onerror="this.style.visibility='hidden'">
+                            <div class="source-info">
+                                <div class="source-title">${src.title}</div>
+                                <div class="source-url">${hostname || src.url}</div>
+                            </div>
+                            ${arrowIcon}
+                        </a>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="sources-category">
+                        <div class="sources-category-label">${cat}</div>
+                        <div class="sources-grid">${items}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showSourcesPage() {
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('reader-view').classList.add('hidden');
+            document.getElementById('sources-page').classList.remove('hidden');
+            document.querySelectorAll('.chapter-list button').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            renderSources();
         }
 
         function updateHashSilently(chap, page) {
@@ -1167,10 +1420,10 @@
         }
 
         const uiStrings = {
-            en: { tagline: "Book of Proof", goTo: "Go to:", go: "Go", previous: "Previous", next: "Next", share: "Share", copied: "Link copied!", notFound: "Reference not found! Use format Chapter:Page (e.g. 1:2 or 2:1)", homeText: "An Islamic book exploring the evidences and arguments for the faith. Browse chapters from the menu, or press \"Start Reading\" to begin from the first page.", homeBtn: "Start Reading", searchPlaceholder: "Search a word or chapter...", noResults: "No results found.", chapterMatch: "Chapter match:", byAuthor: "By", tableOfContents: "Table of Contents" },
-            tr: { tagline: "Delil Kitabı", goTo: "Git:", go: "Git", previous: "Önceki", next: "Sonraki", share: "Paylaş", copied: "Bağlantı kopyalandı!", notFound: "Referans bulunamadı! Bölüm:Sayfa biçimini kullanın (örn. 1:2 veya 2:1)", homeText: "İmana dair delilleri ve argümanları inceleyen İslami bir kitap. Menüden bölümlere göz atabilir veya ilk sayfadan başlamak için \"Okumaya Başla\" düğmesine basabilirsiniz.", homeBtn: "Okumaya Başla", searchPlaceholder: "Bir kelime veya bölüm ara...", noResults: "Sonuç bulunamadı.", chapterMatch: "Bölüm eşleşmesi:", byAuthor: "Yazar", tableOfContents: "İçindekiler" },
-            de: { tagline: "Buch des Beweises", goTo: "Gehe zu:", go: "Los", previous: "Zurück", next: "Weiter", share: "Teilen", copied: "Link kopiert!", notFound: "Referenz nicht gefunden! Verwenden Sie das Format Kapitel:Seite (z. B. 1:2 oder 2:1)", homeText: "Ein islamisches Buch, das die Beweise und Argumente für den Glauben untersucht. Durchsuchen Sie die Kapitel über das Menü oder klicken Sie auf \"Lesen beginnen\", um auf der ersten Seite zu starten.", homeBtn: "Lesen beginnen", searchPlaceholder: "Ein Wort oder Kapitel suchen...", noResults: "Keine Ergebnisse gefunden.", chapterMatch: "Kapitelübereinstimmung:", byAuthor: "Von", tableOfContents: "Inhaltsverzeichnis" },
-            ar: { tagline: "كتاب البرهان", goTo: "الانتقال إلى:", go: "اذهب", previous: "السابق", next: "التالي", share: "مشاركة", copied: "تم نسخ الرابط!", notFound: "المرجع غير موجود! استخدم الصيغة الفصل:الصفحة (مثال 1:2 أو 2:1)", homeText: "كتاب إسلامي يستعرض الأدلة والحجج على صحة العقيدة. تصفح الفصول من القائمة، أو اضغط على \"ابدأ القراءة\" للبدء من الصفحة الأولى.", homeBtn: "ابدأ القراءة", searchPlaceholder: "ابحث عن كلمة أو فصل...", noResults: "لم يتم العثور على نتائج.", chapterMatch: "تطابق الفصل:", byAuthor: "بقلم", tableOfContents: "جدول المحتويات" }
+            en: { tagline: "Book of Proof", goTo: "Go to:", go: "Go", previous: "Previous", next: "Next", share: "Share", copied: "Link copied!", notFound: "Reference not found! Use format Chapter:Page (e.g. 1:2 or 2:1)", homeText: "An Islamic book exploring the evidences and arguments for the faith. Browse chapters from the menu, or press \"Start Reading\" to begin from the first page.", homeBtn: "Start Reading", searchPlaceholder: "Search a word or chapter...", noResults: "No results found.", chapterMatch: "Chapter match:", byAuthor: "By", tableOfContents: "Table of Contents", sourcesTitle: "Sources", sourcesTagline: "Where the information in this book comes from", sourcesBack: "Back to Home", sourcesEmpty: "No sources added yet.",sourcesCount: "{count} references",  },
+            tr: { tagline: "Delil Kitabı", goTo: "Git:", go: "Git", previous: "Önceki", next: "Sonraki", share: "Paylaş", copied: "Bağlantı kopyalandı!", notFound: "Referans bulunamadı! Bölüm:Sayfa biçimini kullanın (örn. 1:2 veya 2:1)", homeText: "İmana dair delilleri ve argümanları inceleyen İslami bir kitap. Menüden bölümlere göz atabilir veya ilk sayfadan başlamak için \"Okumaya Başla\" düğmesine basabilirsiniz.", homeBtn: "Okumaya Başla", searchPlaceholder: "Bir kelime veya bölüm ara...", noResults: "Sonuç bulunamadı.", chapterMatch: "Bölüm eşleşmesi:", byAuthor: "Yazar", tableOfContents: "İçindekiler", sourcesTitle: "Kaynaklar", sourcesTagline: "Bu kitaptaki bilgilerin kaynakları", sourcesBack: "Ana Sayfaya Dön", sourcesEmpty: "Henüz kaynak eklenmedi.", sourcesCount: "{count} kaynak" },
+            de: { tagline: "Buch des Beweises", goTo: "Gehe zu:", go: "Los", previous: "Zurück", next: "Weiter", share: "Teilen", copied: "Link kopiert!", notFound: "Referenz nicht gefunden! Verwenden Sie das Format Kapitel:Seite (z. B. 1:2 oder 2:1)", homeText: "Ein islamisches Buch, das die Beweise und Argumente für den Glauben untersucht. Durchsuchen Sie die Kapitel über das Menü oder klicken Sie auf \"Lesen beginnen\", um auf der ersten Seite zu starten.", homeBtn: "Lesen beginnen", searchPlaceholder: "Ein Wort oder Kapitel suchen...", noResults: "Keine Ergebnisse gefunden.", chapterMatch: "Kapitelübereinstimmung:", byAuthor: "Von", tableOfContents: "Inhaltsverzeichnis", sourcesTitle: "Quellen", sourcesTagline: "Woher die Informationen in diesem Buch stammen", sourcesBack: "Zurück zur Startseite", sourcesEmpty: "Noch keine Quellen hinzugefügt.",sourcesCount: "{count} Quellen" },
+            ar: { tagline: "كتاب البرهان", goTo: "الانتقال إلى:", go: "اذهب", previous: "السابق", next: "التالي", share: "مشاركة", copied: "تم نسخ الرابط!", notFound: "المرجع غير موجود! استخدم الصيغة الفصل:الصفحة (مثال 1:2 أو 2:1)", homeText: "كتاب إسلامي يستعرض الأدلة والحجج على صحة العقيدة. تصفح الفصول من القائمة، أو اضغط على \"ابدأ القراءة\" للبدء من الصفحة الأولى.", homeBtn: "ابدأ القراءة", searchPlaceholder: "ابحث عن كلمة أو فصل...", noResults: "لم يتم العثور على نتائج.", chapterMatch: "تطابق الفصل:", byAuthor: "بقلم", tableOfContents: "جدول المحتويات", sourcesTitle: "المصادر", sourcesTagline: "من أين تأتي المعلومات الواردة في هذا الكتاب", sourcesBack: "العودة إلى الصفحة الرئيسية", sourcesEmpty: "لم تتم إضافة مصادر بعد.", sourcesCount: "{count} مرجع" }
         };
 
         function applyUILanguage() {
@@ -1184,6 +1437,9 @@
             document.getElementById('home-text').innerText = t.homeText;
             document.getElementById('home-start-btn').innerText = t.homeBtn;
             document.getElementById('search-input').placeholder = t.searchPlaceholder;
+            document.getElementById('sources-title-text').innerText = t.sourcesTitle;
+            document.getElementById('sources-tagline-text').innerText = t.sourcesTagline;
+            document.getElementById('sources-back-btn').innerText = t.sourcesBack;
         }
 
         function renderPage() {
@@ -1364,6 +1620,7 @@
         function showHomePage() {
             document.getElementById('home-page').classList.remove('hidden');
             document.getElementById('reader-view').classList.add('hidden');
+            document.getElementById('sources-page').classList.add('hidden');
             document.querySelectorAll('.chapter-list button').forEach(function(btn) {
                 btn.classList.remove('active');
             });
@@ -1372,6 +1629,7 @@
         function showReaderView() {
             document.getElementById('home-page').classList.add('hidden');
             document.getElementById('reader-view').classList.remove('hidden');
+            document.getElementById('sources-page').classList.add('hidden');
         }
 
         function startReading() {
@@ -1383,14 +1641,18 @@
 
         // Initialize display on load
         applyUILanguage();
-        if (loadFromHash()) {
+        if (location.hash.replace('#', '') === 'source') {
+            showSourcesPage();
+        } else if (loadFromHash()) {
             showReaderView();
             renderPage();
         } else {
             showHomePage();
         }
         window.addEventListener('hashchange', function() {
-            if (loadFromHash()) {
+            if (location.hash.replace('#', '') === 'source') {
+                showSourcesPage();
+            } else if (loadFromHash()) {
                 showReaderView();
                 renderPage();
             } else if (!location.hash) {
