@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #ffffff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .top-image {
+      width: 100%;
+      max-width: 350px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    .lang-image {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      margin-bottom: 30px;
+    }
+    .back-btn {
+      background-color: #1b4332;
+      border: 1px solid #173327;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .back-btn:hover {
+      background-color: #173327;
+      transform: translateY(-2px);
+    }
+
+    .back-btn:active {
+      transform: translateY(0);
+    }
+
+    .back-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img id="sub-image" src="https://kitabalfurqan.github.io/assets/en.png" alt="Page cannot be found" class="lang-image">
+    <a href="https://kitabalfurqan.github.io" class="back-btn" aria-label="Go to Home">
+      <svg viewBox="0 0 24 24">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </a>
+  </div>
+  <script>
+    const imageMap = {
+      en: "https://kitabalfurqan.github.io/assets/en.png",
+      tr: "https://kitabalfurqan.github.io/assets/tr.png",
+      de: "https://kitabalfurqan.github.io/assets/de.png",
+      ar: "https://kitabalfurqan.github.io/assets/ar.png"
+    };
+    const userLang = (navigator.language || navigator.userLanguage).slice(0, 2).toLowerCase();
+    const subImageElement = document.getElementById('sub-image');
+    const selectedImage = imageMap[userLang] || imageMap.en;
+    subImageElement.src = selectedImage;
+  </script>
+</body>
+</html>
