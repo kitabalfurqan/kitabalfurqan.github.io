@@ -582,11 +582,22 @@
 
         .home-search-input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 16px 12px 42px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 1rem;
             font-family: inherit;
+        }
+
+        .home-search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-light);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
         }
 
         .home-search-input:focus {
@@ -803,7 +814,13 @@
         <div id="home-page" class="home-page hidden">
             <div class="home-card">
                 <div class="home-search">
-                    <input type="text" id="search-input" class="home-search-input" placeholder="Search a word or chapter..." oninput="performSearch()">
+                    <span class="home-search-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                    </span>
+                    <input type="text" id="search-input" class="home-search-input" placeholder="Search a word, chapter name or number (e.g. Al-Islam 2 or 6:2)..." oninput="performSearch()">
                     <div id="search-results" class="search-results hidden"></div>
                 </div>
 
@@ -1645,8 +1662,39 @@
             return snippet.replace(regex, '<mark>$1</mark>');
         }
 
+        function findChapterMatch(str) {
+            const trimmed = (str || '').trim();
+            if (!trimmed) return null;
+
+            if (/^\d+$/.test(trimmed)) {
+                const num = parseInt(trimmed, 10);
+                return bookData[num] ? num : null;
+            }
+
+            const lower = trimmed.toLowerCase();
+            let matchedChap = null;
+
+            Object.keys(bookData).forEach(function(chapNum) {
+                const title = bookData[chapNum].title.toLowerCase();
+                if (title === lower) {
+                    matchedChap = parseInt(chapNum, 10);
+                }
+            });
+            if (matchedChap) return matchedChap;
+
+            Object.keys(bookData).forEach(function(chapNum) {
+                const title = bookData[chapNum].title.toLowerCase();
+                if (!matchedChap && (title.includes(lower) || lower.includes(title))) {
+                    matchedChap = parseInt(chapNum, 10);
+                }
+            });
+
+            return matchedChap;
+        }
+
         function performSearch() {
-            const query = document.getElementById('search-input').value.trim().toLowerCase();
+            const rawQuery = document.getElementById('search-input').value.trim();
+            const query = rawQuery.toLowerCase();
             const resultsContainer = document.getElementById('search-results');
 
             if (!query) {
@@ -1655,19 +1703,50 @@
                 return;
             }
 
+            const t = uiStrings[uiLang] || uiStrings.en;
             const matches = [];
+            const seenKeys = new Set();
+
+            function addMatch(chapNum, pageNum, snippet) {
+                const key = chapNum + ':' + pageNum;
+                if (seenKeys.has(key)) return;
+                seenKeys.add(key);
+                matches.push({ chapter: chapNum, page: pageNum, snippet: snippet });
+            }
+
+            // "6:2" style reference
+            const colonParts = rawQuery.split(':');
+            if (colonParts.length === 2) {
+                const chapCandidate = findChapterMatch(colonParts[0]);
+                const pageCandidate = parseInt(colonParts[1].trim(), 10);
+                if (chapCandidate && bookData[chapCandidate].pages[pageCandidate]) {
+                    addMatch(chapCandidate, pageCandidate, '<strong>' + t.chapterMatch + '</strong> ' + bookData[chapCandidate].title + ' (' + chapCandidate + ':' + pageCandidate+")");
+                }
+            }
+
+            // "Al-Islam 2" style reference (chapter name/number + page number)
+            const nameNumMatch = rawQuery.match(/^(.*\S)\s+(\d+)$/);
+            if (nameNumMatch) {
+                const chapCandidate = findChapterMatch(nameNumMatch[1]);
+                const pageCandidate = parseInt(nameNumMatch[2], 10);
+                if (chapCandidate && bookData[chapCandidate].pages[pageCandidate]) {
+                    addMatch(chapCandidate, pageCandidate, '<strong>' + t.chapterMatch + '</strong> ' + bookData[chapCandidate].title + ' (' + chapCandidate + ':' + pageCandidate+')');
+                }
+            }
+
+            // Plain chapter number ("3") or full/partial chapter name ("Al-Yahudiyyah")
+            const chapOnlyCandidate = findChapterMatch(rawQuery);
+            if (chapOnlyCandidate) {
+                addMatch(chapOnlyCandidate, 1, '<strong>' + t.chapterMatch + '</strong> ' + bookData[chapOnlyCandidate].title);
+            }
+
             const langs = [userLang, 'en', 'ar', 'tr', 'de'].filter((lang, idx, arr) => arr.indexOf(lang) === idx);
 
             Object.keys(bookData).forEach(function(chapNum) {
                 const chapter = bookData[chapNum];
 
                 if (chapter.title.toLowerCase().includes(query)) {
-                    const t = uiStrings[uiLang] || uiStrings.en;
-                    matches.push({
-                        chapter: chapNum,
-                        page: 1,
-                        snippet: '<strong>' + t.chapterMatch + '</strong> ' + chapter.title
-                    });
+                    addMatch(parseInt(chapNum, 10), 1, '<strong>' + t.chapterMatch + '</strong> ' + chapter.title);
                 }
 
                 Object.keys(chapter.pages).forEach(function(pgNum) {
@@ -1675,11 +1754,7 @@
                     for (let i = 0; i < langs.length; i++) {
                         const text = passage[langs[i]];
                         if (text && text.toLowerCase().includes(query)) {
-                            matches.push({
-                                chapter: chapNum,
-                                page: pgNum,
-                                snippet: makeSnippet(text, query)
-                            });
+                            addMatch(parseInt(chapNum, 10), parseInt(pgNum, 10), makeSnippet(text, query));
                             break;
                         }
                     }
@@ -1687,7 +1762,6 @@
             });
 
             if (matches.length === 0) {
-                const t = uiStrings[uiLang] || uiStrings.en;
                 resultsContainer.innerHTML = '<p class="search-no-results">' + t.noResults + '</p>';
                 resultsContainer.classList.remove('hidden');
                 return;
